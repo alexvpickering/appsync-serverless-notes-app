@@ -1,0 +1,14 @@
+type Note {
+  userId: String!
+  noteId: ID!
+  content: String!
+  createdAt: String!
+}
+
+type Query {
+  getNote(noteId: ID!): Note!
+}
+
+schema {
+  query: Query
+}
