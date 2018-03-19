@@ -1,6 +1,7 @@
 type Note {
   id: ID!
   content: String!
+  meta: String
 }
 
 type Query {

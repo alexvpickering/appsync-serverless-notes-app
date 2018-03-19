@@ -8,8 +8,8 @@ plugins:
   - serverless-appsync-plugin
 
 functions:
-  hello:
-    handler: handler.hello
+  graphql:
+    handler: handler.graphqlHandler
 
 provider:
   name: aws
@@ -23,33 +23,48 @@ custom:
   accountId: ${file(config.json):accountId} # found here https://console.aws.amazon.com/billing/home?#/account
   appSync:
     name: notes-appsync-api # defaults to api
+    schema: schema.graphql # defaults schema.graphql
     apiId: ${file(config.json):apiId} # only required for update-appsync/delete-appsync
     apiKey: # only required for update-appsync/delete-appsync
     authenticationType: AMAZON_COGNITO_USER_POOLS
     userPoolConfig:
-      awsRegion: us-east-2 # required # region
+      awsRegion: ${self:provider.region} # required # region
       defaultAction: ALLOW # ALLOW
       userPoolId: ${file(config.json):userPoolId} # required # user pool ID
-    mappingTemplatesLocation: mapping-templates # defaults to mapping-templates
 
+      
+    # == Mapping Templates
+    #
+    mappingTemplatesLocation: mapping-templates # defaults to mapping-templates
     mappingTemplates:
-      - dataSource: notes # data source name
+      - dataSource: myDynamoDB # data source name
         type: Query # Query, Mutation, Subscription
         field: getNote
         request: "getNote-request-mapping-template.txt" # request mapping template name
         response: "getNote-response-mapping-template.txt" # response mapping template name
-
-    schema: schema.graphql # defaults schema.graphql
-    serviceRole: "AppSyncServiceRole"
-
-    # set up data sources in AppSync (doesn't create)
+      - dataSource: myLambda 
+        type: Note
+        field: content
+        request: "getContent-request-mapping-template.txt" 
+        response: "getContent-request-mapping-template.txt" 
+        
+        
+    # == AppSync Data Sources
+    # (doesn't create resources)
+    serviceRole: AppSyncServiceRole
     dataSources: 
       - type: AMAZON_DYNAMODB
-        name: notes # data source name
-        description: 'Notes table' # DynamoDB Table Description
+        name: myDynamoDB # data source name
+        description: Notes table # DynamoDB Table Description
         config:
-          tableName: 'notes' # DynamoDB Table Name
+          tableName: notes # DynamoDB Table Name
           serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/Dynamo-${self:custom.appSync.serviceRole}"
+      - type: AWS_LAMBDA
+        name: myLambda
+        description: Lambda DataSource
+        config:
+          lambdaFunctionArn: "arn:aws:lambda:${self:provider.region}:${self:custom.accountId}:function:${self:service}-${self:provider.stage}-graphql"
+          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/Lambda-${self:custom.appSync.serviceRole}"
 
 
 # create the resources
@@ -58,7 +73,7 @@ resources:  # CloudFormation template syntax
    
   # create 'notes' table in DynamoDB
     notesTable:  # Logical ID (to reference resource in other parts of template)
-      Type: AWS::DynamoDB::Table
+      Type: "AWS::DynamoDB::Table"
       Properties:
         TableName: notes
         AttributeDefinitions: # describes key schema for table and indexes
@@ -71,7 +86,8 @@ resources:  # CloudFormation template syntax
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
 
-    AppSyncServiceRole:
+    # create 'AppSyncDynamoDBServiceRole' to grant access to dynamodb table
+    AppSyncDynamoDBServiceRole:
       Type: "AWS::IAM::Role"
       Properties:
         RoleName: "Dynamo-AppSyncServiceRole"
@@ -102,5 +118,34 @@ resources:  # CloudFormation template syntax
                     - "dynamodb:Scan"
                     - "dynamodb:UpdateItem"
                   Resource:
-                    - "arn:aws:dynamodb:us-east-2:*:table/notes"
-                    - "arn:aws:dynamodb:us-east-2:*:table/notes/*"
+                    - "arn:aws:dynamodb:${self:provider.region}:*:table/notes"
+                    - "arn:aws:dynamodb:${self:provider.region}:*:table/notes/*"
+
+     # create 'AppSyncLambdaServiceRole' to grant access to lambda function
+    AppSyncLambdaServiceRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+        RoleName: "Lambda-AppSyncServiceRole"
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Effect: Allow
+              Principal:
+                Service:
+                  - appsync.amazonaws.com
+              Action:
+                - "sts:AssumeRole"
+        Policies:
+          -
+            PolicyName: "Lambda-AppSyncServiceRole-Policy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                -
+                  Effect: Allow
+                  Action:
+                    - "lambda:invokeFunction"
+                  Resource:
+                    - "arn:aws:lambda:${self:provider.region}:${self:custom.accountId}:function:${self:service}-${self:provider.stage}-graphql"
+                    - "arn:aws:lambda:${self:provider.region}:${self:custom.accountId}:function:${self:service}-${self:provider.stage}-graphql:*"
