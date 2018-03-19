@@ -7,6 +7,10 @@ plugins:
   - serverless-webpack
   - serverless-appsync-plugin
 
+functions:
+  hello:
+    handler: handler.hello
+
 provider:
   name: aws
   runtime: nodejs6.10
@@ -16,16 +20,16 @@ provider:
 # Enable auto-packing of external modules
 custom:
   webpackIncludeModules: true
-  accountId:  # found here https://console.aws.amazon.com/billing/home?#/account
+  accountId: ${file(config.json):accountId} # found here https://console.aws.amazon.com/billing/home?#/account
   appSync:
     name: notes-appsync-api # defaults to api
-    apiId: # only required for update-appsync/delete-appsync
+    apiId: ${file(config.json):apiId} # only required for update-appsync/delete-appsync
     apiKey: # only required for update-appsync/delete-appsync
     authenticationType: AMAZON_COGNITO_USER_POOLS
     userPoolConfig:
       awsRegion: us-east-2 # required # region
       defaultAction: ALLOW # ALLOW
-      userPoolId: us-east-2_KAskMPB4e # required # user pool ID
+      userPoolId: ${file(config.json):userPoolId} # required # user pool ID
     mappingTemplatesLocation: mapping-templates # defaults to mapping-templates
 
     mappingTemplates:
@@ -38,10 +42,65 @@ custom:
     schema: schema.graphql # defaults schema.graphql
     serviceRole: "AppSyncServiceRole"
 
-    dataSources:
+    # set up data sources in AppSync (doesn't create)
+    dataSources: 
       - type: AMAZON_DYNAMODB
         name: notes # data source name
         description: 'Notes table' # DynamoDB Table Description
         config:
           tableName: 'notes' # DynamoDB Table Name
-          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/dynamo-${self:custom.appSync.serviceRole}"
+          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/Dynamo-${self:custom.appSync.serviceRole}"
+
+
+# create the resources
+resources:  # CloudFormation template syntax
+  Resources:  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
+   
+  # create 'notes' table in DynamoDB
+    notesTable:  # Logical ID (to reference resource in other parts of template)
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: notes
+        AttributeDefinitions: # describes key schema for table and indexes
+          - AttributeName: id
+            AttributeType: S  # 'S'tring, 'N'umeric, or 'B'oolean
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH # partition key (RANGE for sort key)
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+    AppSyncServiceRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+        RoleName: "Dynamo-AppSyncServiceRole"
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Effect: "Allow"
+              Principal:
+                Service:
+                  - "appsync.amazonaws.com"
+              Action:
+                - "sts:AssumeRole"
+        Policies:
+          -
+            PolicyName: "Dynamo-AppSyncServiceRole-Policy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                -
+                  Effect: "Allow"
+                  Action:
+                    - "dynamodb:Query"
+                    - "dynamodb:BatchWriteItem"
+                    - "dynamodb:GetItem"
+                    - "dynamodb:DeleteItem"
+                    - "dynamodb:PutItem"
+                    - "dynamodb:Scan"
+                    - "dynamodb:UpdateItem"
+                  Resource:
+                    - "arn:aws:dynamodb:us-east-2:*:table/notes"
+                    - "arn:aws:dynamodb:us-east-2:*:table/notes/*"

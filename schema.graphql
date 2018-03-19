@@ -1,12 +1,10 @@
 type Note {
-  userId: String!
-  noteId: ID!
+  id: ID!
   content: String!
-  createdAt: String!
 }
 
 type Query {
-  getNote(noteId: ID!): Note!
+  getNote(id: ID!): Note
 }
 
 schema {
