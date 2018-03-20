@@ -1,0 +1,70 @@
+service: 
+  name: notes-app-dynamodb
+  publish: false # disable auto-publishing to the Serverless platform
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: prod
+  region: us-east-2
+  deploymentBucket: notes-app-prod-serverless-deployment
+
+# create the resources
+resources:  # CloudFormation template syntax
+  Resources:  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
+   
+    # create 'notes' table in DynamoDB
+    notesTable:  # Logical ID (to reference resource in other parts of template)
+      Type: "AWS::DynamoDB::Table"
+      Properties:
+        TableName: notes
+        AttributeDefinitions: # describes key schema for table and indexes
+          - AttributeName: id
+            AttributeType: S  # 'S'tring, 'N'umeric, or 'B'oolean
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH # partition key (RANGE for sort key)
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+    # create 'AppSyncDynamoDBServiceRole' to grant access to dynamodb table
+    AppSyncDynamoDBServiceRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+        RoleName: "Dynamo-AppSyncServiceRole"
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Effect: "Allow"
+              Principal:
+                Service:
+                  - "appsync.amazonaws.com"
+              Action:
+                - "sts:AssumeRole"
+        Policies:
+          -
+            PolicyName: "Dynamo-AppSyncServiceRole-Policy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                -
+                  Effect: "Allow"
+                  Action:
+                    - "dynamodb:Query"
+                    - "dynamodb:BatchWriteItem"
+                    - "dynamodb:GetItem"
+                    - "dynamodb:DeleteItem"
+                    - "dynamodb:PutItem"
+                    - "dynamodb:Scan"
+                    - "dynamodb:UpdateItem"
+                  Resource:
+                    - "arn:aws:dynamodb:${self:provider.region}:*:table/notes"
+                    - "arn:aws:dynamodb:${self:provider.region}:*:table/notes/*"
+
+  Outputs:
+    DynamoAppSyncServiceRole:
+      Value: ${self:resources.Resources.AppSyncDynamoDBServiceRole.Properties.RoleName}
+      Export:
+        Name: DynamoAppSyncServiceRole

@@ -1,5 +1,5 @@
 service: 
-  name: notes-app-api
+  name: notes-app-appsync
   publish: false # disable auto-publishing to the Serverless platform
 
 # Use serverless-webpack plugin to transpile ES6/ES7
@@ -16,6 +16,16 @@ provider:
   runtime: nodejs6.10
   stage: prod
   region: us-east-2
+  memorySize: 512
+  deploymentBucket: notes-app-prod-serverless-deployment
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:*
+      Resource:
+        - { "Fn::Join" : ["", ["arn:aws:s3:::", "${cf:notes-app-s3-prod.S3BucketContentRef}" ]]}
+
 
 # Enable auto-packing of external modules
 custom:
@@ -58,7 +68,7 @@ custom:
         description: Notes table # DynamoDB Table Description
         config:
           tableName: notes # DynamoDB Table Name
-          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/Dynamo-${self:custom.appSync.serviceRole}"
+          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/${cf:notes-app-dynamodb-prod.DynamoAppSyncServiceRole}"
       - type: AWS_LAMBDA
         name: myLambda
         description: Lambda DataSource
@@ -70,62 +80,12 @@ custom:
 # create the resources
 resources:  # CloudFormation template syntax
   Resources:  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
-   
-  # create 'notes' table in DynamoDB
-    notesTable:  # Logical ID (to reference resource in other parts of template)
-      Type: "AWS::DynamoDB::Table"
-      Properties:
-        TableName: notes
-        AttributeDefinitions: # describes key schema for table and indexes
-          - AttributeName: id
-            AttributeType: S  # 'S'tring, 'N'umeric, or 'B'oolean
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH # partition key (RANGE for sort key)
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
 
-    # create 'AppSyncDynamoDBServiceRole' to grant access to dynamodb table
-    AppSyncDynamoDBServiceRole:
+     # create 'LambdaAppSyncServiceRole' to grant access to lambda function
+    LambdaAppSyncServiceRole:
       Type: "AWS::IAM::Role"
       Properties:
-        RoleName: "Dynamo-AppSyncServiceRole"
-        AssumeRolePolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            -
-              Effect: "Allow"
-              Principal:
-                Service:
-                  - "appsync.amazonaws.com"
-              Action:
-                - "sts:AssumeRole"
-        Policies:
-          -
-            PolicyName: "Dynamo-AppSyncServiceRole-Policy"
-            PolicyDocument:
-              Version: "2012-10-17"
-              Statement:
-                -
-                  Effect: "Allow"
-                  Action:
-                    - "dynamodb:Query"
-                    - "dynamodb:BatchWriteItem"
-                    - "dynamodb:GetItem"
-                    - "dynamodb:DeleteItem"
-                    - "dynamodb:PutItem"
-                    - "dynamodb:Scan"
-                    - "dynamodb:UpdateItem"
-                  Resource:
-                    - "arn:aws:dynamodb:${self:provider.region}:*:table/notes"
-                    - "arn:aws:dynamodb:${self:provider.region}:*:table/notes/*"
-
-     # create 'AppSyncLambdaServiceRole' to grant access to lambda function
-    AppSyncLambdaServiceRole:
-      Type: "AWS::IAM::Role"
-      Properties:
-        RoleName: "Lambda-AppSyncServiceRole"
+        RoleName: "Lambda-${self:custom.appSync.serviceRole}"
         AssumeRolePolicyDocument:
           Version: "2012-10-17"
           Statement:
@@ -138,7 +98,7 @@ resources:  # CloudFormation template syntax
                 - "sts:AssumeRole"
         Policies:
           -
-            PolicyName: "Lambda-AppSyncServiceRole-Policy"
+            PolicyName: "Lambda-${self:custom.appSync.serviceRole}-Policy"
             PolicyDocument:
               Version: "2012-10-17"
               Statement:

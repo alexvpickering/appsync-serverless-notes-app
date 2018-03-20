@@ -1,0 +1,34 @@
+service: 
+  name: notes-app-s3
+  publish: false # disable auto-publishing to the Serverless platform
+
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: prod
+  region: us-east-2
+  deploymentBucket: notes-app-prod-serverless-deployment
+
+# create the resources
+resources:  # CloudFormation template syntax
+  Resources:  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
+
+    # create 'content' bucket
+    S3BucketContent: # Logical ID (to reference resource in other parts of template)
+      Type: AWS::S3::Bucket
+      Properties: 
+        BucketName: ${self:service}-${self:provider.stage}-assets2
+        CorsConfiguration:
+          CorsRules:
+            - AllowedMethods:
+                - GET
+                - HEAD
+              AllowedOrigins:
+                - "*"
+
+  Outputs:
+    S3BucketContentRef:
+      Value: { "Ref" : "S3BucketContent" }
+      Export:
+        Name: S3BucketContentRef
