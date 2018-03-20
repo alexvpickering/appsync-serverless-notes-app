@@ -1,0 +1,18 @@
+{
+  "name": "notes-app-s3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "scripts": {
+    "seed-data":
+      "cd seed-data && node create-seed-data.js && node insert-seed-data.js notes-app-s3-prod-assets2 item.json",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.211.1",
+    "jsonfile": "^4.0.0"
+  }
+}

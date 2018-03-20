@@ -50,13 +50,13 @@ custom:
       - dataSource: myDynamoDB # data source name
         type: Query # Query, Mutation, Subscription
         field: getNote
-        request: "getNote-request-mapping-template.txt" # request mapping template name
-        response: "getNote-response-mapping-template.txt" # response mapping template name
+        request: "getNote-request.txt" # request mapping template name
+        response: "getNote-response.txt" # response mapping template name
       - dataSource: myLambda 
         type: Note
         field: content
-        request: "getContent-request-mapping-template.txt" 
-        response: "getContent-request-mapping-template.txt" 
+        request: "getContent-request.txt" 
+        response: "getContent-request.txt" 
         
         
     # == AppSync Data Sources
