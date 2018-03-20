@@ -22,9 +22,9 @@ provider:
   iamRoleStatements:
     - Effect: Allow
       Action:
-        - s3:*
+        - "s3:GetObject"
       Resource:
-        - { "Fn::Join" : ["", ["arn:aws:s3:::", "${cf:notes-app-s3-prod.S3BucketContentRef}" ]]}
+        - { "Fn::Join" : ["", ["arn:aws:s3:::", "${cf:notes-app-s3-prod.S3BucketContentRef}", "/*" ]]}
 
 
 # Enable auto-packing of external modules
@@ -56,7 +56,7 @@ custom:
         type: Note
         field: content
         request: "getContent-request.txt" 
-        response: "getContent-request.txt" 
+        response: "getContent-response.txt" 
         
         
     # == AppSync Data Sources
