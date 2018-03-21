@@ -4,8 +4,11 @@
   "description": "",
   "main": "handler.js",
   "scripts": {
+    "//": "Referencing package name in script:",
     "seed-data":
-      "cd seed-data && node create-seed-data.js && node insert-seed-data.js notes-app-s3-prod-assets2 item.json",
+      "cd seed-data && node create.js && node upload.js $npm_package_name-prod-assets2 item.json",
+    "save-outputs":
+      "aws cloudformation describe-stacks --stack-name $npm_package_name-prod --query 'Stacks[0].Outputs' --output json > 'outputs.json'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,5 +17,6 @@
   "dependencies": {
     "aws-sdk": "^2.211.1",
     "jsonfile": "^4.0.0"
-  }
+  },
+  "foo": "bar"
 }

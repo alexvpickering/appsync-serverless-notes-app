@@ -1,0 +1,9 @@
+# need to create using aws-cli because UsernameAttributes not supported by CloudFormation
+# https://forums.aws.amazon.com/thread.jspa?threadID=259349&tstart=0
+
+aws cognito-idp create-user-pool \
+    --pool-name "notes-app-user-pool" \
+    --username-attributes "email" \
+    --query "UserPool.{UserPoolId: Id, UserPoolName: Name}" \
+    --output json \
+    > 'user-pool.json'

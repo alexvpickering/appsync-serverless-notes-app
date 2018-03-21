@@ -2,6 +2,9 @@ service:
   name: notes-app-dynamodb
   publish: false # disable auto-publishing to the Serverless platform
 
+plugins:
+  - serverless-stack-output
+
 provider:
   name: aws
   runtime: nodejs6.10
@@ -9,15 +12,19 @@ provider:
   region: us-east-2
   deploymentBucket: notes-app-prod-serverless-deployment
 
+custom:
+  output:
+    file: "../notes-app-client/src/outputs/dynamodb.json" # toml, yaml, yml, and json format is available
+
 # create the resources
 resources:  # CloudFormation template syntax
   Resources:  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
    
-    # create 'notes' table in DynamoDB
-    notesTable:  # Logical ID (to reference resource in other parts of template)
+    # create DynamoDB table
+    Table:  # Logical ID (to reference resource in other parts of template)
       Type: "AWS::DynamoDB::Table"
       Properties:
-        TableName: notes
+        TableName: ${self:service}
         AttributeDefinitions: # describes key schema for table and indexes
           - AttributeName: id
             AttributeType: S  # 'S'tring, 'N'umeric, or 'B'oolean
@@ -32,7 +39,7 @@ resources:  # CloudFormation template syntax
     AppSyncDynamoDBServiceRole:
       Type: "AWS::IAM::Role"
       Properties:
-        RoleName: "Dynamo-AppSyncServiceRole"
+        RoleName: "${self:service}-appsync-service-role"
         AssumeRolePolicyDocument:
           Version: "2012-10-17"
           Statement:
@@ -45,7 +52,7 @@ resources:  # CloudFormation template syntax
                 - "sts:AssumeRole"
         Policies:
           -
-            PolicyName: "Dynamo-AppSyncServiceRole-Policy"
+            PolicyName: "${self:service}-appsync-service-role-policy"
             PolicyDocument:
               Version: "2012-10-17"
               Statement:
@@ -60,11 +67,17 @@ resources:  # CloudFormation template syntax
                     - "dynamodb:Scan"
                     - "dynamodb:UpdateItem"
                   Resource:
-                    - "arn:aws:dynamodb:${self:provider.region}:*:table/notes"
-                    - "arn:aws:dynamodb:${self:provider.region}:*:table/notes/*"
+                    - Fn::GetAtt: [ Table, Arn ]
+                    - Fn::Join : ["", [ Fn::GetAtt: [ Table, Arn ], "/*" ]]
 
   Outputs:
-    DynamoAppSyncServiceRole:
-      Value: ${self:resources.Resources.AppSyncDynamoDBServiceRole.Properties.RoleName}
+    TableName:
+      Value:
+        Ref: Table
       Export:
-        Name: DynamoAppSyncServiceRole
+        Name: TableName
+    AppSyncDynamoDBServiceRoleId:
+      Value: 
+        Ref: AppSyncDynamoDBServiceRole
+      Export:
+        Name: AppSyncDynamoDBServiceRole

@@ -1,0 +1,67 @@
+service: 
+  name: notes-app-lambda
+  publish: false # disable auto-publishing to the Serverless platform
+
+# Use serverless-webpack plugin to transpile ES6/ES7
+plugins:
+  - serverless-webpack
+  - serverless-appsync-plugin
+
+functions:
+  graphql:
+    handler: handler.graphqlHandler
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: prod
+  region: us-east-2
+  memorySize: 512
+  deploymentBucket: notes-app-prod-serverless-deployment
+
+  # grant lambda access to S3 bucket
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "s3:GetObject"
+      Resource:
+        - { "Fn::Join" : ["", ["arn:aws:s3:::", "${cf:notes-app-s3-prod.S3Bucket}", "/*" ]]}
+
+
+
+
+# create the resources
+resources:  # CloudFormation template syntax
+  Resources:  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
+
+     # create 'AppSyncLambdaServiceRole' to grant access to lambda function
+    AppSyncLambdaServiceRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+        RoleName: "${self:service}-lambda-service-role"
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Effect: Allow
+              Principal:
+                Service:
+                  - appsync.amazonaws.com
+              Action:
+                - "sts:AssumeRole"
+        Policies:
+          -
+            PolicyName: "Lambda-${self:custom.appSync.serviceRole}-Policy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                -
+                  Effect: Allow
+                  Action:
+                    - "lambda:invokeFunction"
+                  Resource:
+                    - Fn::GetAtt: [ DynamoDBTable, Arn ]
+                    - Fn::Join : ["", [ Fn::GetAtt: [ DynamoDBTable, Arn ], "/*" ]]
+
+                    - "arn:aws:lambda:${self:provider.region}:${file(../config.json):accountId}:function:${self:service}-${self:provider.stage}-graphql"
+                    - "arn:aws:lambda:${self:provider.region}:${file(../config.json):accountId}:function:${self:service}-${self:provider.stage}-graphql:*"

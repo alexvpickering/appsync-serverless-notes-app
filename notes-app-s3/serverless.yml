@@ -2,6 +2,12 @@ service:
   name: notes-app-s3
   publish: false # disable auto-publishing to the Serverless platform
 
+plugins:
+  - serverless-stack-output
+
+custom:
+  output:
+    file: ../notes-app-client/src/outputs/s3.json # toml, yaml, yml, and json format is available
 
 provider:
   name: aws
@@ -14,8 +20,8 @@ provider:
 resources:  # CloudFormation template syntax
   Resources:  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
 
-    # create 'content' bucket
-    S3BucketContent: # Logical ID (to reference resource in other parts of template)
+    # create assets bucket
+    S3Bucket: # Logical ID (to reference resource in other parts of template)
       Type: AWS::S3::Bucket
       Properties: 
         BucketName: ${self:service}-${self:provider.stage}-assets2
@@ -28,7 +34,8 @@ resources:  # CloudFormation template syntax
                 - "*"
 
   Outputs:
-    S3BucketContentRef:
-      Value: { "Ref" : "S3BucketContent" }
+    S3BucketName:
+      Value: 
+        Ref : S3Bucket
       Export:
-        Name: S3BucketContentRef
+        Name: "S3Bucket"
