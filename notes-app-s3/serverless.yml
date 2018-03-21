@@ -7,7 +7,7 @@ plugins:
 
 custom:
   output:
-    file: ../notes-app-client/src/outputs/s3.json # toml, yaml, yml, and json format is available
+    file: "../notes-app-client/src/outputs/s3.json" # toml, yaml, yml, and json format is available
 
 provider:
   name: aws
@@ -21,10 +21,10 @@ resources:  # CloudFormation template syntax
   Resources:  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
 
     # create assets bucket
-    S3Bucket: # Logical ID (to reference resource in other parts of template)
+    Bucket: # Logical ID (to reference resource in other parts of template)
       Type: AWS::S3::Bucket
       Properties: 
-        BucketName: ${self:service}-${self:provider.stage}-assets2
+        BucketName: ${self:service}-${self:provider.stage}-files
         CorsConfiguration:
           CorsRules:
             - AllowedMethods:
@@ -34,8 +34,13 @@ resources:  # CloudFormation template syntax
                 - "*"
 
   Outputs:
-    S3BucketName:
+    Bucket:
       Value: 
-        Ref : S3Bucket
+        Ref : Bucket
       Export:
-        Name: "S3Bucket"
+        Name: "Bucket"
+    Region:
+      Value:
+        ${self:provider.region}
+      Export:
+        Name: "Region"
