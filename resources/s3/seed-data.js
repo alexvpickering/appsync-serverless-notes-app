@@ -1,7 +1,7 @@
 // Load the AWS SDK for Node.js
 var AWS = require("aws-sdk");
-
-const S3Outputs = require("../notes-app-client/src/outputs/s3.json");
+var config = require("../config.json");
+const S3Outputs = require(`../../${config.name}-client/src/outputs/s3.json`);
 
 // Set the region
 AWS.config.update({ region: S3Outputs.Region });

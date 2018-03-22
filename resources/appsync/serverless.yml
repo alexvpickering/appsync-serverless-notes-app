@@ -11,13 +11,13 @@ provider:
   runtime: nodejs6.10
   stage: prod
   region: us-east-2
-  deploymentBucket: notes-app-prod-serverless-deployment
+  deploymentBucket: ${file(../config.json):name}-${self:provider.stage}-serverless-deployment
 
 
 # Enable auto-packing of external modules
 custom:
   output:
-    file: ../notes-app-client/src/outputs/appsync.json # toml, yaml, yml, and json format is available
+    file: ../../${file(../config.json):name}-client/src/outputs/appsync.json # toml, yaml, yml, and json format is available
 
   webpackIncludeModules: true
   accountId: ${file(../config.json):accountId} # found here https://console.aws.amazon.com/billing/home?#/account

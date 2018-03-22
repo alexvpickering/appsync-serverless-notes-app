@@ -4,6 +4,4 @@ jspm_packages
 
 # Serverless directories
 .serverless
-
 user-pool.json
-output.js

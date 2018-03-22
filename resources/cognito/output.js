@@ -1,4 +1,5 @@
 var exec = require("child_process").exec;
+var config = require("../config.json");
 
 function handler(data, serverless, options) {
   console.log("Received Stack Output", data);
@@ -8,13 +9,13 @@ function handler(data, serverless, options) {
       aws cognito-idp sign-up \
       --region us-east-2 \
       --client-id ${data.UserPoolClientId} \
-      --username YOUR_EMAIL_ADDRESS \
-      --password Passw0rd! && \
+      --username ${config.email} \
+      --password ${config.password} && \
 
     aws cognito-idp admin-confirm-sign-up \
       --region us-east-2 \
       --user-pool-id ${data.UserPoolId} \
-      --username YOUR_EMAIL_ADDRESS
+      --username ${config.email}
   `
   );
 }

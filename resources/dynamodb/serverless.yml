@@ -1,5 +1,5 @@
 service: 
-  name: notes-app-dynamodb
+  name: ${file(../config.json):name}-dynamodb
   publish: false # disable auto-publishing to the Serverless platform
 
 plugins:
@@ -10,11 +10,11 @@ provider:
   runtime: nodejs6.10
   stage: prod
   region: us-east-2
-  deploymentBucket: notes-app-prod-serverless-deployment
+  deploymentBucket: ${file(../config.json):name}-${self:provider.stage}-serverless-deployment
 
 custom:
   output:
-    file: "../notes-app-client/src/outputs/dynamodb.json" # toml, yaml, yml, and json format is available
+    file: ../../${file(../config.json):name}-client/src/outputs/dynamodb.json # toml, yaml, yml, and json format is available
 
 # create the resources
 resources:  # CloudFormation template syntax
@@ -68,16 +68,12 @@ resources:  # CloudFormation template syntax
                     - "dynamodb:UpdateItem"
                   Resource:
                     - Fn::GetAtt: [ Table, Arn ]
-                    - Fn::Join : ["", [ Fn::GetAtt: [ Table, Arn ], "/*" ]]
+                    - Fn::Join: ["", [ Fn::GetAtt: [ Table, Arn ], "/*" ]]
 
   Outputs:
     TableName:
       Value:
         Ref: Table
-      Export:
-        Name: TableName
     AppSyncDynamoDBServiceRole:
       Value: 
         Ref: AppSyncDynamoDBServiceRole
-      Export:
-        Name: AppSyncDynamoDBServiceRole

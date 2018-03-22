@@ -1,9 +1,8 @@
 var AWS = require("aws-sdk");
-var Bucket = require("../notes-app-client/src/outputs/s3.json").Bucket;
+var config = require("../config.json");
+var Bucket = require(`../${config.name}-client/src/outputs/s3.json`).Bucket;
 
 exports.graphqlHandler = (event, context, callback) => {
-  // console.log("Received field {}", JSON.stringify(event.field, null, 2));
-
   if (event.field === "content") {
     getS3Content(callback);
   } else {

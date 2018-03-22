@@ -1,4 +1,4 @@
-service: notes-app-cognito # NOTE: update this with your service name
+service: ${file(../config.json):name}-cognito # NOTE: update this with your service name
 
 plugins:
   - serverless-stack-output
@@ -8,13 +8,12 @@ provider:
   runtime: nodejs6.10
   stage: prod
   region: us-east-2
-  deploymentBucket: notes-app-prod-serverless-deployment
+  deploymentBucket: ${file(../config.json):name}-${self:provider.stage}-serverless-deployment
 
 custom:
-  serviceCamel: notesAppCognito
   output:
     handler: output.handler # Same syntax as you already know
-    file: ../notes-app-client/src/outputs/cognito.json # toml, yaml, yml, and json format is available
+    file: ../../${file(../config.json):name}-client/src/outputs/cognito.json # toml, yaml, yml, and json format is available
 
 
 # you can add CloudFormation resource templates here
@@ -34,7 +33,7 @@ resources:
     IdentityPool:
       Type: "AWS::Cognito::IdentityPool"
       Properties:
-        IdentityPoolName: ${self:custom.serviceCamel}Identity
+        IdentityPoolName: ${file(../config.json):camelName}CognitoIdentity
         AllowUnauthenticatedIdentities: true
         CognitoIdentityProviders: 
           - ClientId: 
@@ -123,16 +122,10 @@ resources:
     UserPoolId:
       Value: 
         ${file(user-pool.json):UserPoolId}
-      Export:
-        Name: ${file(user-pool.json):UserPoolName}
     UserPoolClientId:
       Value:
         Ref: UserPoolClient
-      Export:
-        Name: "UserPoolClient::Id"
     IdentityPoolId:
       Value:
         Ref: IdentityPool
-      Export:
-        Name: "IdentityPool::Id"
 
