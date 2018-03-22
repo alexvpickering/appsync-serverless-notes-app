@@ -18,7 +18,7 @@ A starter package for a React application using appsync, lambda, cognito, dynamo
   * used as deployment bucket for all resources
 
 
-config.json:
+#### config.json:
 * place in *resources* directory
 * **name**: name of app, used as prefix for resources (e.g. "notes-app").
 * **camelName**: same as *name* but camelCase (used by cognito resource to satisfy *IdentityPoolName* syntax)
@@ -29,7 +29,7 @@ config.json:
 * add to *gitignore*
 * see *resources/config-example.json*
 
-* cognito:
+#### cognito:
   * run `node create-user-pool.js`:
     * creates a UserPool and saves output to *user-pool.json*
     * need until *UsernameAttributes* supported by CloudFormation
@@ -37,19 +37,19 @@ config.json:
     * creates UserPoolClient, IdentityPool, and a test user
     * saves outputs to to client *src/outputs/cognito.json*
 
-* s3:
+#### s3:
   * run `sls deploy`:
     * creates a bucket with CORS setup
     * saves outputs to client *src/outputs/s3.json*
   * run `node seed-data.js` to upload an object to bucket
 
-* dynamodb:
+#### dynamodb:
   * run `sls deploy`:
     * creates a table and appsync IAM role to use table
     * saves outputs to client `src/outputs/dynamodb.json`
   * run `node seed-data.js` to insert an entry into table
 
-* lambda:
+#### lambda:
   * run `sls deploy`:
     * creates *graphql* lambda function with *GetObject* access to above s3 bucket
     * creates appsync IAM role to use lambda function
@@ -57,7 +57,7 @@ config.json:
   * run `node seed-data.js` to insert an entry into table
   * run `sls logs -f graphql --tail` to monitor logs
 
-* appsync:
+#### appsync:
   * uses above cognito, s3, dynamodb, lambda, and associated IAM roles (deploy prior to appsync)
   * run `sls deploy-appsync` for initial deployment
   * run `sls update-appsync` to update (requires apiId in *config.json*)
