@@ -128,4 +128,9 @@ resources:
     IdentityPoolId:
       Value:
         Ref: IdentityPool
+    TestUserEmail:
+      Value: ${file(../config.json):email}
+    TestUserPassword:
+      Value: ${file(../config.json):password}
+
 

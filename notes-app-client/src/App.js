@@ -22,7 +22,7 @@ Amplify.configure({
   }
 });
 
-Auth.signIn("alexvpickering@gmail.com", "Passw0rd!")
+Auth.signIn(cognitoOutputs.TestUserEmail, cognitoOutputs.TestUserPassword)
   .then(user => console.log(user))
   .catch(err => console.log(err));
 
