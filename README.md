@@ -35,7 +35,7 @@ A starter package for a React application using appsync, lambda, cognito, dynamo
     * need until *UsernameAttributes* supported by CloudFormation
   * run `sls deploy`: 
     * creates UserPoolClient, IdentityPool, and a test user
-    * saves outputs to to client *src/outputs/cognito.json*
+    * saves outputs to client *src/outputs/cognito.json*
 
 #### s3:
   * run `sls deploy`:

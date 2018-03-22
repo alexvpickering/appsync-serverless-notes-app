@@ -1,5 +1,5 @@
 service: 
-  name: notes-app-appsync
+  name: ${file(../config.json):name}-appsync
   publish: false # disable auto-publishing to the Serverless platform
 
 # Use serverless-webpack plugin to transpile ES6/ES7
