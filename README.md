@@ -1,9 +1,9 @@
 # appsync-serverless-notes-app
 
-A demo package of a graphql React application using aws-appsync with lambda and dynamodb data sources. The lambda data source allows graphql
-queries to return s3 objects. Graphql endpoint is only available to users in a cognito user pool.
+A demo package of a `graphql` React application using `aws-appsync` with `lambda` and `dynamodb` data sources. The `lambda` data source allows `graphql`
+queries to return `s3` objects. The `graphql` endpoint is only available to users in a `cognito` user pool.
 
-All aws resources are provisioned using the serverless framework.
+All aws resources are provisioned using the `serverless framework`.
 
 ## Instructions:
 
@@ -34,7 +34,7 @@ All aws resources are provisioned using the serverless framework.
 
 #### cognito:
   * run `node create-user-pool.js`:
-    * creates a UserPool and saves output to *user-pool.json*
+    * creates a UserPool and saves output to **user-pool.json**
     * need until *UsernameAttributes* supported by CloudFormation
   * run `sls deploy`: 
     * creates UserPoolClient, IdentityPool, and a test user
@@ -44,12 +44,12 @@ All aws resources are provisioned using the serverless framework.
   * run `sls deploy`:
     * creates a bucket with CORS setup
     * saves outputs to client **src/outputs/s3.json**
-  ** run `node seed-data.js` to upload an object to bucket
+  * run `node seed-data.js` to upload an object to bucket
 
 #### dynamodb:
   * run `sls deploy`:
     * creates a table and appsync IAM role to use table
-    * saves outputs to client `src/outputs/dynamodb.json`
+    * saves outputs to client **src/outputs/dynamodb.json**
   * run `node seed-data.js` to insert an entry into table
 
 #### lambda:
