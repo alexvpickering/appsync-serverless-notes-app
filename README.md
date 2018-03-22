@@ -25,7 +25,6 @@ A starter package for a React application using appsync, lambda, cognito, dynamo
 * **password**: password for test cognito user (must satisfy cognitos difficulty requirements).
 * **accountId**: found here https://console.aws.amazon.com/billing/home?#/account
 * **apiId**: Appsync apiId, used for `sls update-appsync`.
-
 * place in *resources* directory
 * add to *gitignore*
 * see *resources/config-example.json*
