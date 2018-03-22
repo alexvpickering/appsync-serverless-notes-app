@@ -19,13 +19,14 @@ A starter package for a React application using appsync, lambda, cognito, dynamo
 
 
 #### config.json:
-* place in *resources* directory
 * **name**: name of app, used as prefix for resources (e.g. "notes-app").
 * **camelName**: same as *name* but camelCase (used by cognito resource to satisfy *IdentityPoolName* syntax)
 * **email**: your email address (used to create/verify a cognito user for testing your app)
 * **password**: password for test cognito user (must satisfy cognitos difficulty requirements).
 * **accountId**: found here https://console.aws.amazon.com/billing/home?#/account
 * **apiId**: Appsync apiId, used for `sls update-appsync`.
+
+* place in *resources* directory
 * add to *gitignore*
 * see *resources/config-example.json*
 
