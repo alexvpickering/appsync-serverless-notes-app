@@ -76,7 +76,7 @@ resources:  # CloudFormation template syntax
         Ref: Table
       Export:
         Name: TableName
-    AppSyncDynamoDBServiceRoleId:
+    AppSyncDynamoDBServiceRole:
       Value: 
         Ref: AppSyncDynamoDBServiceRole
       Export:

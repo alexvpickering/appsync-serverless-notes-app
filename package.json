@@ -19,5 +19,8 @@
   "homepage": "https://github.com/alexvpickering/appsync-serverless-notes-app#readme",
   "dependencies": {
     "serverless-stack-output": "^0.2.3"
+  },
+  "devDependencies": {
+    "serverless-appsync-plugin": "^0.0.6"
   }
 }

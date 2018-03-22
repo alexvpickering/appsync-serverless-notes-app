@@ -57,12 +57,12 @@ custom:
         name: myDynamoDB # data source name
         description: Notes table # DynamoDB Table Description
         config:
-          tableName: notes # DynamoDB Table Name
-          serviceRoleArn: "arn:aws:iam::${file(../config.json):role/${cf:notes-app-dynamodb-prod.AppSyncDynamoDBServiceRole}"
+          tableName: ${cf:notes-app-dynamodb-prod.TableName} # DynamoDB Table Name
+          serviceRoleArn: "arn:aws:iam::${file(../config.json):accountId}:role/${cf:notes-app-dynamodb-prod.AppSyncDynamoDBServiceRole}"
       - type: AWS_LAMBDA
         name: myLambda
         description: Lambda DataSource
         config:
-          lambdaFunctionArn: "arn:aws:lambda:${self:provider.region}:${file(../config.json):function:${self:service}-${self:provider.stage}-graphql"
-          serviceRoleArn: "arn:aws:iam::${file(../config.json):role/Lambda-${self:custom.appSync.serviceRole}"
+          lambdaFunctionArn: ${cf:notes-app-lambda-prod.GraphqlLambdaFunctionQualifiedArn}
+          serviceRoleArn: "arn:aws:iam::${file(../config.json):accountId}:role/${cf:notes-app-lambda-prod.AppSyncLambdaServiceRole}"
 

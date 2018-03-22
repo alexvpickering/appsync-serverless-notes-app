@@ -4,7 +4,6 @@ var AWS = require("aws-sdk");
 AWS.config.update({ region: "us-east-2" });
 const { TableName } = require("../notes-app-client/src/outputs/dynamodb.json");
 
-console.log(TableName);
 // Create the DynamoDB service object
 ddb = new AWS.DynamoDB({ apiVersion: "2012-10-08" });
 
