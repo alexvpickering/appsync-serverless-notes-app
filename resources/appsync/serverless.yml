@@ -5,6 +5,7 @@ service:
 # Use serverless-webpack plugin to transpile ES6/ES7
 plugins:
   - serverless-appsync-plugin
+  - serverless-stack-output
 
 provider:
   name: aws
