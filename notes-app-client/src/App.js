@@ -1,13 +1,7 @@
 import React, { Component } from "react";
 import logo from "./logo.svg";
 import "./App.css";
-
-import AWSAppSyncClient from "aws-appsync";
-import { Rehydrated } from "aws-appsync-react";
-import { AUTH_TYPE } from "aws-appsync/lib/link/auth-link";
-import { graphql, ApolloProvider, compose } from "react-apollo";
-import * as AWS from "aws-sdk";
-import AppSync from "./appsync.js";
+import { graphql } from "react-apollo";
 import GetNoteQuery from "./queries/GetNoteQuery";
 import Amplify, { Auth } from "aws-amplify";
 
@@ -26,18 +20,14 @@ Auth.signIn(cognitoOutputs.TestUserEmail, cognitoOutputs.TestUserPassword)
   .then(user => console.log(user))
   .catch(err => console.log(err));
 
-const client = new AWSAppSyncClient({
-  url: AppSync.graphqlEndpoint,
-  region: AppSync.region,
-  auth: {
-    // Amazon Cognito user pools using AWS Amplify
-    type: AUTH_TYPE.AMAZON_COGNITO_USER_POOLS,
-    jwtToken: async () =>
-      (await Auth.currentSession()).getIdToken().getJwtToken()
-  }
-});
-
 class App extends Component {
+  componentDidMount() {
+    console.log(this.props);
+  }
+  componentWillUpdate(nextProps, nextState) {
+    console.log({ nextProps });
+    console.log({ nextState });
+  }
   render() {
     return (
       <div className="App">
@@ -48,9 +38,32 @@ class App extends Component {
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
+        <div>id: {this.props.id}</div>
+        <div>meta: {this.props.meta}</div>
+        <div>content: {this.props.content}</div>
       </div>
     );
   }
 }
 
-export default App;
+const mapPropsToOptions = () => {
+  return {
+    variables: {
+      id: "1234"
+    }
+  };
+};
+
+const mapResultsToProps = ({ data }) => {
+  console.log("mapResultsToProps");
+  return {
+    id: data.getNote.id,
+    meta: data.getNote.meta,
+    content: data.getNote.content
+  };
+};
+
+export default graphql(GetNoteQuery, {
+  props: mapResultsToProps,
+  options: mapPropsToOptions
+})(App);

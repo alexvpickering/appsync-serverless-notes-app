@@ -63,5 +63,7 @@ All aws resources are provisioned using the `serverless framework`.
 #### appsync:
   * uses above cognito, s3, dynamodb, lambda, and associated IAM roles (deploy prior to appsync)
   * run `sls deploy-appsync` for initial deployment
-  * run `sls update-appsync` to update (requires **apiId** in **config.json**)
+  * add the printed **apiId** to **config.json** then run `node get-appsync-outputs.js`
+    * saves appsync outputs to **src/outputs/appsync.json**
+  * to update run `sls update-appsync` (requires **apiId** in **config.json**)
 

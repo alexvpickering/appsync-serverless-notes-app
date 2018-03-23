@@ -31,7 +31,7 @@ custom:
     userPoolConfig:
       awsRegion: ${self:provider.region} # required # region
       defaultAction: ALLOW # ALLOW
-      userPoolId: ${file(../notes-app-cognito/user-pool.json):UserPoolId} # required # user pool ID
+      userPoolId: ${file(../cognito/user-pool.json):UserPoolId} # required # user pool ID
 
       
     # == Mapping Templates

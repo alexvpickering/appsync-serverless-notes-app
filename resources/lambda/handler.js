@@ -1,8 +1,8 @@
-var AWS = require("aws-sdk");
-var config = require("../config.json");
-var Bucket = require(`../${config.name}-client/src/outputs/s3.json`).Bucket;
+const AWS = require("aws-sdk");
+const config = require("../config.json");
+const { Bucket } = require(`../../${config.name}-client/src/outputs/s3.json`);
 
-exports.graphqlHandler = (event, context, callback) => {
+module.exports.graphqlHandler = (event, context, callback) => {
   if (event.field === "content") {
     getS3Content(callback);
   } else {
@@ -11,7 +11,7 @@ exports.graphqlHandler = (event, context, callback) => {
 };
 
 const getS3Content = callback => {
-  var s3 = new AWS.S3();
+  const s3 = new AWS.S3();
   s3.getObject({ Bucket, Key: "item.json" }, function(error, data) {
     if (error != null) {
       console.log("Failed to retrieve an object: " + error);
