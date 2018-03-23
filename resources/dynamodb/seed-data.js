@@ -10,17 +10,46 @@ AWS.config.update({ region: "us-east-2" });
 ddb = new AWS.DynamoDB({ apiVersion: "2012-10-08" });
 
 var params = {
-  TableName,
-  Item: {
-    id: { S: "1234" },
-    meta: { S: "some added info" }
+  RequestItems: {
+    [TableName]: [
+      {
+        PutRequest: {
+          Item: {
+            id: { S: "1" },
+            meta: { S: "this is item 1" }
+          }
+        }
+      },
+      {
+        PutRequest: {
+          Item: {
+            id: { S: "2" },
+            meta: { S: "this is item 2" }
+          }
+        }
+      },
+      {
+        PutRequest: {
+          Item: {
+            id: { S: "3" },
+            meta: { S: "this is item 3" }
+          }
+        }
+      },
+      {
+        PutRequest: {
+          Item: {
+            id: { S: "4" },
+            meta: { S: "this is item 4" }
+          }
+        }
+      }
+    ]
   }
 };
 
-console.log(params);
-
 // Call DynamoDB to add the item to the table
-ddb.putItem(params, function(err, data) {
+ddb.batchWriteItem(params, function(err, data) {
   if (err) {
     console.log("Error", err);
   } else {

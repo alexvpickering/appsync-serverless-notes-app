@@ -40,7 +40,7 @@ custom:
     mappingTemplates:
       - dataSource: myDynamoDB # data source name
         type: Query # Query, Mutation, Subscription
-        field: getNote
+        field: note
         request: "getNote-request.txt" # request mapping template name
         response: "getNote-response.txt" # response mapping template name
       - dataSource: myLambda 

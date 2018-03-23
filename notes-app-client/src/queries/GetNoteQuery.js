@@ -1,8 +1,8 @@
 import gql from "graphql-tag";
 
 export default gql`
-  query GetNoteQuery {
-    getNote(id: "1234") {
+  query GetNoteQuery($id: ID!) {
+    note(id: $id) {
       id
       meta
       content

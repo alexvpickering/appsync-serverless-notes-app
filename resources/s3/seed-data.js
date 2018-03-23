@@ -10,18 +10,28 @@ AWS.config.update({ region: S3Outputs.Region });
 const s3 = new AWS.S3({ apiVersion: "2006-03-01" });
 
 // call S3 to retrieve upload file to specified bucket
-var uploadParams = {
-  Bucket: S3Outputs.Bucket,
-  Key: "item.json",
-  Body: JSON.stringify({ blah: "content from s3" })
-};
 
-// call S3 to retrieve upload file to specified bucket
-s3.upload(uploadParams, function(err, data) {
-  if (err) {
-    console.log("Error", err);
-  }
-  if (data) {
-    console.log("Upload Success", data.Location);
-  }
+const S3Objects = [
+  { content: "I am S3 Object 1" },
+  { content: "I am S3 Object 2" },
+  { content: "I am S3 Object 3" },
+  { content: "I am S3 Object 4" }
+];
+
+S3Objects.forEach((S3Object, i) => {
+  const uploadParams = {
+    Bucket: S3Outputs.Bucket,
+    Key: `${i + 1}.json`,
+    Body: JSON.stringify(S3Object)
+  };
+
+  // call S3 to retrieve upload file to specified bucket
+  s3.upload(uploadParams, function(err, data) {
+    if (err) {
+      console.log("Error", err);
+    }
+    if (data) {
+      console.log("Upload Success", data.Location);
+    }
+  });
 });

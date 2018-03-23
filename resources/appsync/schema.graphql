@@ -5,7 +5,7 @@ type Note {
 }
 
 type Query {
-  getNote(id: ID!): Note
+  note(id: ID!): Note
 }
 
 schema {
