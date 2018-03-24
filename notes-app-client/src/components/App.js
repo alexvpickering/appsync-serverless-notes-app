@@ -33,7 +33,14 @@ class App extends Component {
     this.state.noteId &&
       this.props
         .mutate({
-          variables: { id: this.state.noteId, meta: this.state.meta }
+          variables: { id: this.state.noteId, meta: this.state.meta },
+          optimisticResponse: {
+            updateNote: {
+              id: this.state.noteId, // real id for offline query updates
+              meta: this.state.meta,
+              __typename: "Note"
+            }
+          }
         })
         .then(res => {
           this.setState({ meta: "" });

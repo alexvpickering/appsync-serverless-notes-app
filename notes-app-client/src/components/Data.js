@@ -9,7 +9,7 @@ const Data = ({ data }) => {
     <div>
       <h2>Data</h2>
       <pre style={{ textAlign: "left" }}>
-        {JSON.stringify(data, undefined, 2)}
+        {JSON.stringify(data.note, undefined, 2)}
       </pre>
     </div>
   );
