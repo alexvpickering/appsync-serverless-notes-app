@@ -2,9 +2,9 @@ import React from "react";
 import { graphql } from "react-apollo";
 import PropTypes from "prop-types";
 import GetNoteQuery from "../queries/GetNoteQuery";
+import { Auth } from "aws-amplify";
 
 const Data = ({ data }) => {
-  console.log(data);
   return (
     <div>
       <h2>Data</h2>
@@ -20,12 +20,12 @@ Data.propTypes = {
 };
 
 export default graphql(GetNoteQuery, {
-  options(ownProps) {
+  options: props => {
     return {
       variables: {
-        id: ownProps.noteId && ownProps.noteId
+        id: props.noteId && props.noteId,
+        skip: !props.noteId || !props.auth
       }
     };
-  },
-  skip: ({ noteId }) => noteId === ""
+  }
 })(Data);

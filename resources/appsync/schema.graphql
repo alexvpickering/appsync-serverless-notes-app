@@ -4,10 +4,20 @@ type Note {
   meta: String
 }
 
+input NoteInput {
+  id: ID!
+  meta: String
+}
+
 type Query {
   note(id: ID!): Note
 }
 
+type Mutation {
+  updateNote(input: NoteInput!): Note
+}
+
 schema {
   query: Query
+  mutation: Mutation
 }

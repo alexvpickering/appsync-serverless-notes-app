@@ -48,6 +48,12 @@ custom:
         field: content
         request: "getContent-request.txt" 
         response: "getContent-response.txt" 
+
+      - dataSource: myDynamoDB # data source name
+        type: Mutation # Query, Mutation, Subscription
+        field: updateNote
+        request: "updateNote-request.txt" # request mapping template name
+        response: "updateNote-response.txt" # response mapping template name
         
         
     # == AppSync Data Sources
