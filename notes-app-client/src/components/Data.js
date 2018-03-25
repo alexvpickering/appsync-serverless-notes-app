@@ -1,8 +1,7 @@
 import React from "react";
+import gql from "graphql-tag";
 import { graphql } from "react-apollo";
 import PropTypes from "prop-types";
-import GetNoteQuery from "../queries/GetNoteQuery";
-import { Auth } from "aws-amplify";
 
 const Data = ({ data }) => {
   return (
@@ -19,13 +18,24 @@ Data.propTypes = {
   noteId: PropTypes.string
 };
 
-export default graphql(GetNoteQuery, {
+const query = gql`
+  query GetNoteQuery($id: ID!, $skip: Boolean!) {
+    note(id: $id) @skip(if: $skip) {
+      id
+      meta
+      content
+    }
+  }
+`;
+
+export default graphql(query, {
   options: props => {
     return {
       variables: {
         id: props.noteId && props.noteId,
         skip: !props.noteId || !props.auth
-      }
+      },
+      fetchPolicy: "cache-and-network"
     };
   }
 })(Data);
